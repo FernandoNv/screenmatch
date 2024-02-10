@@ -1,4 +1,4 @@
-package com.example.screenmatch.service;
+package com.example.screenmatch.service.api;
 
 import com.example.screenmatch.exception.RequestException;
 

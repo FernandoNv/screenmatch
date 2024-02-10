@@ -1,4 +1,4 @@
-package com.example.screenmatch.service;
+package com.example.screenmatch.service.parser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

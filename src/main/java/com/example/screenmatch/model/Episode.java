@@ -1,7 +1,5 @@
 package com.example.screenmatch.model;
 import com.example.screenmatch.dto.EpisodeDTO;
-import com.example.screenmatch.dto.SeasonDTO;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
@@ -11,6 +9,8 @@ public class Episode implements Comparable<Episode>{
     private Double rating;
     private LocalDate releasedDate;
     private Integer season;
+
+    public Episode(){}
 
     public Episode(EpisodeDTO episodeDTO, Integer season) {
         this.title = episodeDTO.title();

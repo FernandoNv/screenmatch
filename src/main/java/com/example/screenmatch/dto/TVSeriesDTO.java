@@ -10,5 +10,13 @@ public record TVSeriesDTO(
         @JsonAlias("totalSeasons")
         Integer totalSeasons,
         @JsonAlias("imdbRating")
-        String rating
+        String rating,
+        @JsonAlias("Plot")
+        String plot,
+        @JsonAlias("Genre")
+        String genre,
+        @JsonAlias("Actors")
+        String actors,
+        @JsonAlias("Poster")
+        String poster
 ) { }
