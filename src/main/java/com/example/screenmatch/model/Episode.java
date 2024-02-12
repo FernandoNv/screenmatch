@@ -1,18 +1,25 @@
 package com.example.screenmatch.model;
 import com.example.screenmatch.dto.EpisodeDTO;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-
+@Entity
+@Table(name = "episodes")
 public class Episode implements Comparable<Episode>{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String title;
     private Integer number;
     private Double rating;
     private LocalDate releasedDate;
     private Integer season;
-
+    @ManyToOne
+    private TVSeries tvSeries;
     public Episode(){}
 
-    public Episode(EpisodeDTO episodeDTO, Integer season) {
+    public Episode(Integer season, EpisodeDTO episodeDTO) {
         this.title = episodeDTO.title();
         this.number = episodeDTO.number();
         try{
@@ -28,6 +35,22 @@ public class Episode implements Comparable<Episode>{
         }
 
         this.season = season;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TVSeries getTvSeries() {
+        return tvSeries;
+    }
+
+    public void setTvSeries(TVSeries tvSeries) {
+        this.tvSeries = tvSeries;
     }
 
     public String getTitle() {

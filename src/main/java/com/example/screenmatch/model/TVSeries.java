@@ -5,7 +5,6 @@ import com.example.screenmatch.service.translation.ITranslation;
 import com.example.screenmatch.service.translation.mymemory.MyMemory;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 
@@ -25,8 +24,8 @@ public class TVSeries {
     private String actors;
     private String poster;
 
-    @Transient
-    private List<Episode> episodeList = new ArrayList<>();
+    @OneToMany(mappedBy = "tvSeries", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Episode> episodeList;
     @Transient
     private final ITranslation translation = new MyMemory();
 
@@ -47,6 +46,7 @@ public class TVSeries {
     }
 
     public void setEpisodeList(List<Episode> episodeList) {
+        episodeList.forEach(e -> e.setTvSeries(this));
         this.episodeList = episodeList;
     }
 
@@ -124,6 +124,7 @@ public class TVSeries {
                 ", plot='" + plot + '\'' +
                 ", actors='" + actors + '\'' +
                 ", poster='" + poster + '\'' +
+                ", episodes='" + episodeList + '\'' +
                 '}';
     }
 }
