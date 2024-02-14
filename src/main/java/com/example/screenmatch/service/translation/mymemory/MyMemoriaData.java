@@ -5,5 +5,4 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record MyMemoriaData(
         TranslatedText responseData
-) {
-}
+){ }
