@@ -22,7 +22,9 @@ public class Menu {
     private final DataParser dataParser = new DataParser();
     private final List<TVSeriesDTO> tvSeriesDTOList = new ArrayList<>();
     private List<TVSeries> tvSeriesList = new ArrayList<>();
+    private Optional<TVSeries> tvSeriesFound;
     private final TVSeriesRepository tvSeriesRepository;
+
     @Autowired
     public Menu(TVSeriesRepository tvSeriesRepository) {
         this.tvSeriesRepository = tvSeriesRepository;
@@ -31,23 +33,26 @@ public class Menu {
     public void showMenu() {
         int option = -1;
 
-        while (option != 0){
+        while (option != 0) {
             System.out.println("""
-                1 - (WEB) - Buscar serie por título
-                2 - (WEB) - Encontrar episodes
-                3 - (BD) - Listar series cadastradas
-                4 - (BD) - Buscar série por título
-                5 - (BD) - Buscar série por ator/atriz
-                6 - (BD) - Top 5 séries
-                7 - (BD) - Buscar série por categoria/gênero
-                8 - (BD) - Buscar série por número de temporadas e avaliação
-                0 - Sair
-                """);
+                    1 - (WEB) - Buscar serie por título
+                    2 - (WEB) - Encontrar episodes
+                    3 - (BD) - Listar series cadastradas
+                    4 - (BD) - Buscar série por título
+                    5 - (BD) - Buscar série por ator/atriz
+                    6 - (BD) - Top 5 séries
+                    7 - (BD) - Buscar série por categoria/gênero
+                    8 - (BD) - Buscar série por número de temporadas e avaliação
+                    9 - (BD) - Buscar episodes por trecho de nome
+                    10 - (BD) - Top episódios de uma série
+                    11 - (BD) - Episódios a partir de uma data
+                    0 - Sair
+                    """);
 
             option = scanner.nextInt();
             scanner.nextLine();
 
-            switch (option){
+            switch (option) {
                 case 1:
                     getTVSeriesWeb();
                     break;
@@ -72,6 +77,15 @@ public class Menu {
                 case 8:
                     getTVSeriesByTotalSeasonsAndRating();
                     break;
+                case 9:
+                    getEpisodesBySubstringTitle();
+                    break;
+                case 10:
+                    topEpisodesPerTVSeries();
+                    break;
+                case 11:
+                    getEpisodesFromDateToNow();
+                    break;
                 case 0:
                     System.out.println("Tachau...");
                     break;
@@ -82,6 +96,58 @@ public class Menu {
 
     }
 
+    private void getEpisodesFromDateToNow() {
+        getTVSeriesByTitle();
+        if(tvSeriesFound.isPresent()){
+            TVSeries tvSeries = tvSeriesFound.get();
+            System.out.println("Digite o ano limite de lançamento");
+            int year = scanner.nextInt();
+            scanner.nextLine();
+            List<Episode> episodes = tvSeriesRepository.getTVSeriesEpisodesFromYear(tvSeries, year);
+            episodes.forEach(e ->
+                    System.out.printf("Série: %s, Temporada: %d, Episódio: %d, Ano de lançamento: %s, Título: %s \n",
+                            e.getTvSeries().getTitle(),
+                            e.getSeason(),
+                            e.getNumber(),
+                            e.getReleasedDate(),
+                            e.getTitle()
+                    )
+            );
+        }
+    }
+
+    private void topEpisodesPerTVSeries() {
+        getTVSeriesByTitle();
+        if(tvSeriesFound.isPresent()){
+            TVSeries tvSeries = tvSeriesFound.get();
+            List<Episode> episodes = tvSeriesRepository.topEpisodesPerTVSeries(tvSeries);
+            episodes.forEach(e ->
+                    System.out.printf("Série: %s, Temporada: %d, Episódio: %d, Avaliação: %.2f, Título: %s \n",
+                            e.getTvSeries().getTitle(),
+                            e.getSeason(),
+                            e.getNumber(),
+                            e.getRating(),
+                            e.getTitle()
+                    )
+            );
+        }
+    }
+
+    private void getEpisodesBySubstringTitle() {
+        System.out.println("Digite o trecho do nome do episodio");
+        String titleEpisode = scanner.nextLine().trim();
+
+        List<Episode> episodes = tvSeriesRepository.getEpisodesBySubstringTitle(titleEpisode);
+        episodes.forEach(e ->
+                System.out.printf("Série: %s, Temporada: %d, Episódio: %d, Título: %s \n",
+                        e.getTvSeries().getTitle(),
+                        e.getSeason(),
+                        e.getNumber(),
+                        e.getTitle()
+                )
+        );
+    }
+
     private void getTVSeriesByTotalSeasonsAndRating() {
         System.out.println("Número máximo de temporadas");
         int maxSeasons = scanner.nextInt();
@@ -90,8 +156,8 @@ public class Menu {
         System.out.println("Mínimo de avaliação");
         double minRating = scanner.nextDouble();
 
-        List<TVSeries> tvSeriesList = tvSeriesRepository.findByTotalSeasonsLessThanEqualAndRatingGreaterThanEqualOrderByRatingDesc(maxSeasons, minRating);
-        tvSeriesList.forEach(s -> System.out.println("Título: "+ s.getTitle() + "  avaliação: " + s.getRating()));
+        List<TVSeries> tvSeriesList = tvSeriesRepository.tvSeriesBySeasonAndRating(maxSeasons, minRating);
+        tvSeriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + "  avaliação: " + s.getRating()));
     }
 
     private void getTVSeriesByCategory() {
@@ -101,12 +167,12 @@ public class Menu {
         Category category = Category.fromPortugues(categoryName);
 
         List<TVSeries> tvSeriesList = tvSeriesRepository.findByCategory(category);
-        tvSeriesList.forEach(s -> System.out.println("Título: "+ s.getTitle() + "  avaliação: " + s.getRating()));
+        tvSeriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + "  avaliação: " + s.getRating()));
     }
 
     private void getTopTVSeries() {
         List<TVSeries> tvSeriesList = tvSeriesRepository.findTop5ByOrderByRatingDesc();
-        tvSeriesList.forEach(s -> System.out.println("Título: "+ s.getTitle() + "  avaliação: " + s.getRating()));
+        tvSeriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + "  avaliação: " + s.getRating()));
     }
 
     private void getTVSeriesByActor() {
@@ -118,9 +184,9 @@ public class Menu {
         scanner.nextLine();
 
         List<TVSeries> tvSeriesList = tvSeriesRepository.findByActorsContainingIgnoreCaseAndRatingGreaterThanEqual(actor, rating);
-        if(!tvSeriesList.isEmpty()){
-            tvSeriesList.forEach(s -> System.out.println("Título: "+ s.getTitle() + "  avaliação: " + s.getRating()));
-        } else{
+        if (!tvSeriesList.isEmpty()) {
+            tvSeriesList.forEach(s -> System.out.println("Título: " + s.getTitle() + "  avaliação: " + s.getRating()));
+        } else {
             System.out.println("Nome do ator/atriz inválido");
         }
     }
@@ -129,11 +195,11 @@ public class Menu {
         System.out.println("Digite o título da série");
         String title = scanner.nextLine().trim();
 
-        Optional<TVSeries> tvSeriesFound = tvSeriesRepository.findByTitleContainingIgnoreCase(title);
-        if (tvSeriesFound.isPresent()){
+        tvSeriesFound = tvSeriesRepository.findByTitleContainingIgnoreCase(title);
+        if (tvSeriesFound.isPresent()) {
             TVSeries tvSeries = tvSeriesFound.get();
             System.out.println(tvSeries);
-        } else{
+        } else {
             System.out.println("Série não encontrada");
         }
     }
@@ -147,7 +213,7 @@ public class Menu {
         tvSeriesList.forEach(System.out::println);
     }
 
-    private void getTVSeriesWeb(){
+    private void getTVSeriesWeb() {
         TVSeriesDTO dto = getTVSeriesData();
         tvSeriesDTOList.add(dto);
         tvSeriesRepository.save(new TVSeries(dto));
@@ -161,12 +227,12 @@ public class Menu {
 
         Optional<TVSeries> tvSeriesFilter = tvSeriesRepository.findByTitleContainingIgnoreCase(tvseriesTitle);
 
-        if(tvSeriesFilter.isPresent()){
+        if (tvSeriesFilter.isPresent()) {
             TVSeries tvSeries = tvSeriesFilter.get();
             List<SeasonDTO> seasonDTOList = new ArrayList<>();
 
             for (int i = 1; i <= tvSeries.getTotalSeasons(); i++) {
-                String url = API_URL + tvSeries.getTitle().replace(" ", "+")  + "&season="+ i + API_KEY;
+                String url = API_URL + tvSeries.getTitle().replace(" ", "+") + "&season=" + i + API_KEY;
                 String json = apiConsumer.getData(url);
 
                 seasonDTOList.add(dataParser.getData(json, SeasonDTO.class));
@@ -186,11 +252,11 @@ public class Menu {
         }
     }
 
-    private TVSeriesDTO getTVSeriesData(){
+    private TVSeriesDTO getTVSeriesData() {
         System.out.println("Digite o nome da série");
         String tvSeriesName = scanner.nextLine().trim().replace(" ", "+");
 
-        String json = apiConsumer.getData(API_URL+tvSeriesName+API_KEY);
+        String json = apiConsumer.getData(API_URL + tvSeriesName + API_KEY);
 
         return dataParser.getData(json, TVSeriesDTO.class);
     }
