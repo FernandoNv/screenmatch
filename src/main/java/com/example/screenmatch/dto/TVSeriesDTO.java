@@ -1,22 +1,14 @@
 package com.example.screenmatch.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.example.screenmatch.model.Category;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public record TVSeriesDTO(
-        @JsonAlias("Title")
+        Long id,
         String title,
-        @JsonAlias("totalSeasons")
         Integer totalSeasons,
-        @JsonAlias("imdbRating")
-        String rating,
-        @JsonAlias("Plot")
+        Double rating,
         String plot,
-        @JsonAlias("Genre")
-        String genre,
-        @JsonAlias("Actors")
+        Category category,
         String actors,
-        @JsonAlias("Poster")
         String poster
 ) { }

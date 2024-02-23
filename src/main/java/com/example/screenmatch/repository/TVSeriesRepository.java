@@ -6,7 +6,6 @@ import com.example.screenmatch.model.TVSeries;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,11 +22,11 @@ public interface TVSeriesRepository extends JpaRepository<TVSeries, Long> {
     List<TVSeries> findByTotalSeasonsLessThanEqualAndRatingGreaterThanEqualOrderByRatingDesc(int maxSeasons, double minRating);
 
 
-//    @Query(nativeQuery = true, name = """
+    //    @Query(nativeQuery = true, name = """
 //    select id, title from tvseries where total_seasons <= :maxSeasons and rating >= :minRating
 //    """)
     @Query("SELECT s FROM TVSeries s WHERE s.totalSeasons <= :maxSeasons AND s.rating >= :minRating")
-    List<TVSeries>tvSeriesBySeasonAndRating(int maxSeasons, double minRating);
+    List<TVSeries> tvSeriesBySeasonAndRating(int maxSeasons, double minRating);
 
     @Query("SELECT e FROM TVSeries s JOIN s.episodeList e WHERE e.title ILIKE %:titleEpisode%")
     List<Episode> getEpisodesBySubstringTitle(String titleEpisode);
@@ -37,4 +36,31 @@ public interface TVSeriesRepository extends JpaRepository<TVSeries, Long> {
 
     @Query("SELECT e FROM TVSeries s JOIN s.episodeList e WHERE s = :tvSeries AND YEAR(e.releasedDate) >= :year")
     List<Episode> getTVSeriesEpisodesFromYear(TVSeries tvSeries, int year);
+
+    List<TVSeries> findTop5ByOrderByEpisodeListReleasedDateDesc();
+
+    @Query(value = """
+            SELECT s FROM TVSeries s
+                JOIN s.episodeList e
+                GROUP BY s
+                ORDER BY MAX(e.releasedDate) DESC
+                LIMIT 5
+            """)
+    List<TVSeries> findNewReleases();
+
+    @Query(value = """
+            SELECT e FROM TVSeries s
+            JOIN s.episodeList e
+            WHERE s.id = :id AND e.season = :season
+            """)
+    List<Episode> getEpisodesBySeasonNumberFromTVSeriesById(Long id, Integer season);
+
+    @Query("""
+            SELECT e FROM TVSeries s
+            JOIN s.episodeList e
+            WHERE s.id = :id
+            ORDER BY e.rating DESC
+            LIMIT 5
+            """)
+    List<Episode> findTop5EpisodesById(Long id);
 }

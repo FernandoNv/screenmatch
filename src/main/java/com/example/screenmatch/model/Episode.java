@@ -1,5 +1,5 @@
 package com.example.screenmatch.model;
-import com.example.screenmatch.dto.EpisodeDTO;
+import com.example.screenmatch.dto.EpisodeOmdbDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -19,17 +19,17 @@ public class Episode implements Comparable<Episode>{
     private TVSeries tvSeries;
     public Episode(){}
 
-    public Episode(Integer season, EpisodeDTO episodeDTO) {
-        this.title = episodeDTO.title();
-        this.number = episodeDTO.number();
+    public Episode(Integer season, EpisodeOmdbDTO episodeOMDBDTO) {
+        this.title = episodeOMDBDTO.title();
+        this.number = episodeOMDBDTO.number();
         try{
-            this.rating = Double.valueOf(episodeDTO.rating());
+            this.rating = Double.valueOf(episodeOMDBDTO.rating());
         }catch (NumberFormatException exception){
             this.rating = 0.0;
         }
 
         try {
-            this.releasedDate = LocalDate.parse(episodeDTO.releasedDate());
+            this.releasedDate = LocalDate.parse(episodeOMDBDTO.releasedDate());
         } catch (DateTimeParseException exception){
             this.releasedDate = null;
         }

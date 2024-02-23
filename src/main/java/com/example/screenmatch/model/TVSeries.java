@@ -1,6 +1,6 @@
 package com.example.screenmatch.model;
 
-import com.example.screenmatch.dto.TVSeriesDTO;
+import com.example.screenmatch.dto.TVSeriesOmdbDTO;
 import com.example.screenmatch.service.translation.ITranslation;
 import com.example.screenmatch.service.translation.mymemory.MyMemory;
 import jakarta.persistence.*;
@@ -29,14 +29,14 @@ public class TVSeries {
     @Transient
     private final ITranslation translation = new MyMemory();
 
-    public TVSeries(TVSeriesDTO tvSeriesDTO) {
-        this.title = tvSeriesDTO.title();
-        this.totalSeasons = tvSeriesDTO.totalSeasons();
-        this.rating = OptionalDouble.of(Double.parseDouble(tvSeriesDTO.rating())).orElse(0.0);
-        this.plot = translation.getTranslation(tvSeriesDTO.plot());
-        this.category = Category.fromString(tvSeriesDTO.genre().split(",")[0].trim());
-        this.actors = tvSeriesDTO.actors();
-        this.poster = tvSeriesDTO.poster();
+    public TVSeries(TVSeriesOmdbDTO tvSeriesOMDBDTO) {
+        this.title = tvSeriesOMDBDTO.title();
+        this.totalSeasons = tvSeriesOMDBDTO.totalSeasons();
+        this.rating = OptionalDouble.of(Double.parseDouble(tvSeriesOMDBDTO.rating())).orElse(0.0);
+        this.plot = translation.getTranslation(tvSeriesOMDBDTO.plot());
+        this.category = Category.fromString(tvSeriesOMDBDTO.genre().split(",")[0].trim());
+        this.actors = tvSeriesOMDBDTO.actors();
+        this.poster = tvSeriesOMDBDTO.poster();
     }
 
     public TVSeries() {}
